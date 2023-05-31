@@ -97,10 +97,14 @@ int jogada(int pr,int v[3], int i){
   int tecla = tela_le_char();
   switch (tecla)  {
   case c_left:
-    if (v[i]>1) v[i]--;
+    if (v[i]>1){
+      v[i]--;
+    }
     break;
   case c_right:
-    if (v[i]<51) v[i]++;
+    if (v[i]<51){ 
+      v[i]++;
+    }
     break;
   }
   return (v[i]*5);
@@ -246,6 +250,29 @@ void finalcalc(float ponto1[3], cores user, cores random, double tempo,float *po
   *ponto=pontmed(ponto1,tempo);
 }
 
+void jogando(placar pontuacao, cores *user, double tempo, double inicio, cores random){
+  do {
+      tempo = tela_relogio() - inicio;
+      desenhatela(tempo,*user,random, inicio);
+      int lugar=tela_le_char();
+      if(lugar == c_up){
+        if (pontuacao.cor>1){
+          pontuacao.cor--;
+        }
+      }
+      else if(lugar == c_down){
+        if (pontuacao.cor<3){
+          pontuacao.cor++;
+        }
+      }
+      else if (lugar == c_enter){
+        break;
+      }
+      else {choosebar(pontuacao.v,&(pontuacao.cor),&(user->r),&(user->g),&(user->b),10,12,14);
+        }
+  }while (tempo <= 20);
+}
+
 int main(){
   placar pontuacao; cores user; cores random;
   int continuar=1;
@@ -253,19 +280,7 @@ int main(){
     inicia(pontuacao.pontos,pontuacao.nomes);    
     atribuir(&(user.r),&(user.g),&(user.b),&(random.r),&(random.g),&(random.b),&(pontuacao.cor),pontuacao.v);
     double inicio = tela_relogio(), tempo;
-    do {
-      tempo = tela_relogio() - inicio;
-      desenhatela(tempo,user,random, inicio);
-      int lugar=tela_le_char();
-      if(lugar == c_up){if (pontuacao.cor>1)pontuacao.cor--;
-      }
-      else if(lugar == c_down){if (pontuacao.cor<3)pontuacao.cor++;
-      }
-      else if (lugar == c_enter){break;
-      }
-      else {choosebar(pontuacao.v,&(pontuacao.cor),&(user.r),&(user.g),&(user.b),10,12,14);
-        }
-    }while (tempo <= 20);
+    jogando(pontuacao, &user, tempo, inicio, random);
     finalcalc(pontuacao.ponto1,user,random,tempo,&(pontuacao.ponto));
     desenhafim(user,random,pontuacao.ponto);  
     continuar=final(&(pontuacao.ponto),pontuacao.pontos, pontuacao.nomes, continuar);
