@@ -26,6 +26,8 @@ typedef struct{
   char nomes[5][20];
   int v[3];
   int cor;
+  double inicio;
+  double tempo;
 } placar;
 
 int max(int a, int b)
@@ -230,7 +232,7 @@ void choosebar(int v[3], int *cor, int *r, int *g, int *b, int jr, int jg, int j
   }
 }
 
-void atribuir(int *ur, int *ug, int *ub, int *rr, int *rg, int *rb, int *cor, int v[3]){
+void atribuir(int *ur, int *ug, int *ub, int *rr, int *rg, int *rb, int *cor, int v[3],double *inicio, double *tempo){
   *rr=(rand()%52)*5;
   *rg=(rand()%52)*5; 
   *rb=(rand()%52)*5;
@@ -241,6 +243,8 @@ void atribuir(int *ur, int *ug, int *ub, int *rr, int *rg, int *rb, int *cor, in
   v[0]=1;
   v[1]=1;
   v[2]=1;
+  *inicio = tela_relogio();
+  *tempo=0;
 }
 
 void finalcalc(float ponto1[3], cores user, cores random, double tempo,float *ponto){
@@ -278,10 +282,9 @@ int main(){
   int continuar=1;
   while (continuar==1){
     inicia(pontuacao.pontos,pontuacao.nomes);    
-    atribuir(&(user.r),&(user.g),&(user.b),&(random.r),&(random.g),&(random.b),&(pontuacao.cor),pontuacao.v);
-    double inicio = tela_relogio(), tempo;
-    jogando(pontuacao, &user, tempo, inicio, random);
-    finalcalc(pontuacao.ponto1,user,random,tempo,&(pontuacao.ponto));
+    atribuir(&(user.r),&(user.g),&(user.b),&(random.r),&(random.g),&(random.b),&(pontuacao.cor),pontuacao.v,&(pontuacao.inicio),&(pontuacao.tempo));
+    jogando(pontuacao, &user, pontuacao.tempo, pontuacao.inicio, random);
+    finalcalc(pontuacao.ponto1,user,random,pontuacao.tempo,&(pontuacao.ponto));
     desenhafim(user,random,pontuacao.ponto);  
     continuar=final(&(pontuacao.ponto),pontuacao.pontos, pontuacao.nomes, continuar);
   }
