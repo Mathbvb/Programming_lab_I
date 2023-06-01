@@ -127,6 +127,7 @@ float calcpontos(int corj, int cor){
   pontos = dischu/madis*100;
   return pontos;
 }
+
 float pontmed(float ponto1[3], double tempo){
   float total=0, bonus=1;
   if (tempo<20){
