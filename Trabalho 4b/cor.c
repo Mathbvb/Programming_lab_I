@@ -27,9 +27,9 @@ typedef struct{
   cor random;
 } placar;
 
-const cor RED={255,0,0};
-const cor GREEN={0,255,0};
-const cor BLUE={0,0,255};
+const cor RED={5,0,0};
+const cor GREEN={0,5,0};
+const cor BLUE={0,0,5};
 const cor WHITE={255,255,255};
 
 void poslincol(int lin, int col){
@@ -77,7 +77,7 @@ void quadrado(cor cores, int col){
 
 void bar(cor desbar){
   for (int i=1;i<53;i++){
-    cor desbar2={i*desbar.vermelho/255*5, i*desbar.verde/255*5, i*desbar.azul/255*5};
+    cor desbar2={i*desbar.vermelho, i*desbar.verde, i*desbar.azul};
     tela_cor_fundo(desbar2);
     putchar(' ');
   }
