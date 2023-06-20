@@ -1,0 +1,35 @@
+function DetectaColisao(img1: Image, img2: Image): boolean;
+var
+    R1,R2: Trect;
+begin
+    R1 := Rect(img1.left, img1.top, img1.width, img1.height);
+    R2 := Rect(img2.left, img2.top, img2.width, img2.height);
+    Result IntersectRect(R1,R2);
+end;
+
+Timer() 
+var
+    ColTE, ColEB, ColTB: boolean;
+begin
+    ColTE := DetectaColisao(imgEnemy, imgTank);
+    ColEB := DetectaColisao(imgEnemy, imgBulletLvlUp);
+    ColTB := DetectaColisao(imgTank, imgBulletLvlUp);
+
+    if (ColTE = true) then begin         //1
+        Tela.Timer.Enabled := false;
+        Void application.MessageBox('Game Over - Perdeu','Game Over');
+        application.Terminate;
+    end;
+
+    else if (ColTB = true) then begin    //2
+        bulletSpeed := bulletSpeed + 1;
+        imgBulletLvlUp.left := 1000;
+        imgBulletLvlUp.top := 1000; 
+    end;
+
+    else if (ColEB = true) then begin    //3
+        enemyVel := enemyVel + 2;
+        imgBulletLvlUp.left := 1000;
+        imgBulletLvlUp.top := 1000; 
+    end;
+end;

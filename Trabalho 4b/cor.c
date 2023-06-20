@@ -50,7 +50,10 @@ int abs(int a)
 void readtxt(float pontos[5], char nomes[5][20]){
   FILE *arq = fopen("./tabela.txt","r");
   if (arq == NULL){
-    fclose(arq);
+    for (int i=0;i<5;i++){
+      pontos[i]=0;
+    }
+    return;
   }
   for (int i=0; i<5;i++){
     fscanf(arq,"%f %s",&pontos[i],nomes[i]);
