@@ -130,40 +130,15 @@ void juntalr(char matriz[5][5],double *pontos){
     }
 }
 
-void moverl(char matriz[5][5]){
-    char aux;
-        for (int i=5;i>0;i--){
-            for (int j=5;j>0;j--){
-                if (matriz[i][j]==' '){
-                    for(int k=j;k>0;k--){
-                        if(matriz[i][k]!=' '){
-                            aux = matriz[i][k];
-                            matriz[i][k]=' ';
-                            matriz[i][j]=aux;
-                        }
-                    }
-                }
-            }
-        }
-}
-
-void juntarl(char matriz[5][5], double *pontos){
-    char aux;
-    for(int i=0;i<5;i++){
-        for(int j=5;j>2;j--){
-            if(matriz[i][j]==matriz[i][j-1] && matriz[i][j]==matriz[i][j-2]){
-                aux=matriz[i][j];
-                jp(matriz,&(*pontos),i,j,aux);
-                matriz[i][j-1]=' ';
-                matriz[i][j-2]=' ';
-            }
-        }
-    }
+double addponto(double pontos){
+    pontos += 1;
+    return pontos;
 }
 
 void clickleft(char matriz[5][5], double *pontos){
     movelr(matriz);
     juntalr(matriz,&(*pontos));
+    *pontos=addponto(*pontos);
 }
 
 void clickup(char matriz[5][5], double *pontos){
@@ -171,6 +146,7 @@ void clickup(char matriz[5][5], double *pontos){
     movelr(matriz);
     juntalr(matriz,&(*pontos));
     transcreve(matriz);
+    *pontos=addponto(*pontos);
 }
 
 void clickright(char matriz[5][5],double *pontos){
@@ -178,6 +154,7 @@ void clickright(char matriz[5][5],double *pontos){
     movelr(matriz);
     juntalr(matriz,&(*pontos));
     invertelr(matriz);
+    *pontos=addponto(*pontos);
 }
 
 void clickdown(char matriz[5][5], double *pontos){
@@ -187,6 +164,7 @@ void clickdown(char matriz[5][5], double *pontos){
     juntalr(matriz,&(*pontos));
     invertelr(matriz);
     transcreve(matriz);
+    *pontos=addponto(*pontos);
 }
 
 void sorteia(char matriz[5][5]){
