@@ -8,34 +8,70 @@
 
 typedef struct {
     char matrizl[5][5];
-    char nextchar;
     double pontos;
     int cf;
     int cb;
+    int fa, fb, fc, fd, fe, ff;
+    char maior_pontos[5][20];
+    double mpontos[5];
 } val;
 
-#define fundo tela_cria_cor(78.0/255.0,51.0/255.0,99.0/255.0);
-#define borda tela_cria_cor(135.0/255.0,191.0/255.0,255.0/255.0);
+#define fundo tela_cria_cor(255.0/255.0,210.0/255.0,97.0/255.0);
+#define borda tela_cria_cor(222.0/255.0,101.0/255.0,27.0/255.0);
+#define fundoa tela_cria_cor(240.0/255.0,150.0/255.0,34.0/255.0);
+#define fundob tela_cria_cor(217.0/255.0,203.0/255.0,20.0/255.0);
+#define fundoc tela_cria_cor(23.0/255.0,252.0/255.0,23.0/255.0);
+#define fundod tela_cria_cor(217.0/255.0,29.0/255.0,20.0/255.0);
+#define fundoe tela_cria_cor(189.0/255.0,66.0/255.0,250.0/255.0);
+#define fundof tela_cria_cor(85.0/255.0,60.0/255.0,250.0/255.0);
+
 
 void desenhafundo(int cf){
     tela_retangulo(0,0,1280,720,5,cf,cf);
 }
 
-void desenhabotao(float x, float y, int cb){
-    tela_retangulo(x,y,x+512,y+144,5,cb,cb);
+void desenhabotao(float x, float y, int cb, float com, float alt){
+    tela_retangulo(x,y,x+com,y+alt,5,cb,cb);
 }
 
-void desenhaquadrado(int cb, int cf){
+int corfundoquad(val valores, int i, int j){
+    char l = valores.matrizl[i][j];
+    switch (l){
+        case 'A':
+            return valores.fa;
+            break;
+        case 'B':
+            return valores.fb;
+            break;
+        case 'C':
+            return valores.fc;
+            break;
+        case 'D':
+            return valores.fd;
+            break;
+        case 'E':
+            return valores.fe;
+            break;
+        case 'F':
+            return valores.ff;
+            break;
+    }
+    return 0;
+}
+
+void desenhaquadrado(val valores){
+    int cf;
     float x=360,y=80;
     for(int j=0;j<5;j++){
         for (int i=0;i<5;i++){
-            tela_retangulo(x+115*i,y+115*j,x+115*i+100,y+115*j+100,5,cb,cf);
+            cf = corfundoquad(valores,j,i);
+            tela_retangulo(x+115*i,y+115*j,x+115*i+115,y+115*j+115,3,valores.cb,cf);
         }
     }
 }
 
 void imprime_matriz(char matriz[5][5], int cb){
-    float x=410,y=130;
+    float x=418,y=135;
     char v[2];
     v[1]='\0';
     for (int i=0;i<5;i++){
@@ -75,23 +111,21 @@ void invertelr(char matriz[5][5]){
 }
 
 void movelr(char matriz[5][5]){
-    char aux;
     for (int i=0;i<5;i++){
+        int aux=0;
         for (int j=0;j<5;j++){
-            if (matriz[i][j]==' '){
-                for(int k=j;k<5;k++){
-                    if(matriz[i][k]!=' '){
-                        aux = matriz[i][k];
-                        matriz[i][k]=' ';
-                        matriz[i][j]=aux;
-                    }
+            if (matriz[i][j]!=' '){
+                matriz[i][aux]=matriz[i][j];
+                if(j>aux){
+                    matriz[i][j]=' ';
                 }
+            aux++;
             }
         }
     }
 }
 
-void jp(char matriz[5][5],double *pontos,int i,int j, char aux){
+void jp(char matriz[5][5],double *pontos,int i,int j, char aux, int cb, int cf){
     switch (aux){
     case 'A':
         matriz[i][j]='B';
@@ -112,17 +146,18 @@ void jp(char matriz[5][5],double *pontos,int i,int j, char aux){
     case 'E':                
         matriz[i][j]='F';
         *pontos+=2430;
+        game(*pontos,cb,cf,true);
         break;
     }
 }
 
-void juntalr(char matriz[5][5],double *pontos){
+void juntalr(char matriz[5][5],double *pontos, int cb, int cf){
     char aux;
     for(int i=0;i<5;i++){
         for(int j=0;j<3;j++){
             if(matriz[i][j]==matriz[i][j+1] && matriz[i][j]==matriz[i][j+2]){
                 aux=matriz[i][j];
-                jp(matriz,&(*pontos),i,j,aux);
+                jp(matriz,&(*pontos),i,j,aux, cb, cf);
                 matriz[i][j+1]=' ';
                 matriz[i][j+2]=' ';
             }
@@ -135,33 +170,41 @@ double addponto(double pontos){
     return pontos;
 }
 
-void clickleft(char matriz[5][5], double *pontos){
+void clickleft(char matriz[5][5], double *pontos, int cb, int cf){
     movelr(matriz);
-    juntalr(matriz,&(*pontos));
+    juntalr(matriz,&(*pontos),cb,cf);
+    movelr(matriz);
+    juntalr(matriz,&(*pontos),cb,cf);
     *pontos=addponto(*pontos);
 }
 
-void clickup(char matriz[5][5], double *pontos){
+void clickup(char matriz[5][5], double *pontos, int cb, int cf){
     transcreve(matriz);
     movelr(matriz);
-    juntalr(matriz,&(*pontos));
+    juntalr(matriz,&(*pontos),cb,cf);
+    movelr(matriz);
+    juntalr(matriz,&(*pontos),cb,cf);
     transcreve(matriz);
     *pontos=addponto(*pontos);
 }
 
-void clickright(char matriz[5][5],double *pontos){
+void clickright(char matriz[5][5],double *pontos, int cb, int cf){
     invertelr(matriz);
     movelr(matriz);
-    juntalr(matriz,&(*pontos));
+    juntalr(matriz,&(*pontos),cb,cf);
+    movelr(matriz);
+    juntalr(matriz,&(*pontos),cb,cf);
     invertelr(matriz);
     *pontos=addponto(*pontos);
 }
 
-void clickdown(char matriz[5][5], double *pontos){
+void clickdown(char matriz[5][5], double *pontos, int cb, int cf){
     transcreve(matriz);
     invertelr(matriz);
     movelr(matriz);
-    juntalr(matriz,&(*pontos));
+    juntalr(matriz,&(*pontos),cb,cf);
+    movelr(matriz);
+    juntalr(matriz,&(*pontos),cb,cf);
     invertelr(matriz);
     transcreve(matriz);
     *pontos=addponto(*pontos);
@@ -222,39 +265,71 @@ void iniciaval(val *valores){
     }
     valores->cb = borda;
     valores->cf = fundo;
-
+    valores->fa = fundoa;
+    valores->fb = fundob;
+    valores->fc = fundoc;
+    valores->fd = fundod;
+    valores->fe = fundoe;
+    valores->ff = fundof;
 }
 
+void placar(){}
+
 void imp_tela(double pontos, int cb){
-    char buf[8], msg[24]={"Clique Back para fechar\0"};
+    char buf[8];
     sprintf(buf,"%.1f", pontos);
     tela_texto(860,40,60,cb,buf);
-    tela_texto(200,690,30,cb,msg);
 }
 
 void desenhatela(val valores){
     desenhafundo(valores.cf);
     imp_tela(valores.pontos, valores.cb);
-    desenhaquadrado(valores.cb, valores.cf);
+    desenhaquadrado(valores);
     imprime_matriz(valores.matrizl, valores.cb);
 }
 
-void desenha_inicio(int cor_logo, int cor_texto){
-    char logo[4]={"EFE\0"}, jogar[15]={"Jogar - Enter\0"}, inst[35]={"Combine 3 letras iguais de A a F\0"};
+void desenha_inicio(int cor_logo, int cor_texto, int pos){
+    char logo[4]={"EFE\0"}, jogar[7]={"Jogar\0"}, inst[35]={"Combine 3 letras iguais de A a F\0"}, lplac[8]={"Placar\0"};
     desenhafundo(cor_logo);
     tela_texto(640,120,120,cor_texto,logo);
-    desenhabotao(384,290,cor_texto);
-    tela_texto(640,360,60,cor_logo,jogar);
-    tela_texto(640,600,30,cor_texto,inst);
+    tela_texto(640,650,40,cor_texto,inst);
+    if (pos==0){
+        desenhabotao(384,290,cor_texto,512,144);
+        tela_texto(640,360,70,cor_logo,jogar);
+        desenhabotao(420,460,cor_texto,440,110);
+        tela_texto(640,510,50,cor_logo,lplac);
+    }
+    else{
+        desenhabotao(420,290,cor_texto,440,110);
+        tela_texto(640,340,50,cor_logo,jogar);
+        desenhabotao(384,460,cor_texto,512,144);
+        tela_texto(640,530,70,cor_logo,lplac);
+    }
 }
 
 void inicio(int cor_logo, int cor_texto){
+    int pos = 0;
     while(true){
-        desenha_inicio(cor_logo,cor_texto);
+        desenha_inicio(cor_logo,cor_texto, pos);
         int tecla = tela_tecla();
         switch (tecla){
+            case c_up:
+                if(pos>0){
+                    pos--;
+                }
+                break;
+            case c_down:
+                if(pos==0){
+                    pos++;
+                }
+                break;
             case c_enter:
-                return;
+                if(pos == 0){
+                    return;
+                }
+                else{
+                    placar();
+                }
         }
         tela_atualiza();
     }
@@ -274,7 +349,7 @@ void desenhafim(double pontos, int cb, int cf, bool vencedor){
         tela_texto(640,180,100,cb,venceu);
     }
     tela_texto(640,260,70,cb,ponto);
-    desenhabotao(384,330,cb);
+    desenhabotao(384,330,cb,512,144);
     tela_texto(640,400,60,cf,fechar);
 }
 
@@ -291,8 +366,7 @@ void game(double pontos, int cb, int cf, bool venceu){
 }
 
 void tela_acaba(val valores){
-    bool haveF = temF(valores.matrizl);
-    game(valores.pontos,valores.cb,valores.cf,haveF);
+    game(valores.pontos,valores.cb,valores.cf,false);
 }
 
 void jogo(val valores){
@@ -301,19 +375,19 @@ void jogo(val valores){
         int tecla = tela_tecla();
         switch (tecla){
         case c_up:
-            clickup(valores.matrizl,&(valores.pontos));
+            clickup(valores.matrizl,&(valores.pontos),valores.cb,valores.cf);
             sorteia(valores.matrizl);
             break;
         case c_down:
-            clickdown(valores.matrizl,&(valores.pontos));
+            clickdown(valores.matrizl,&(valores.pontos),valores.cb,valores.cf);
             sorteia(valores.matrizl);
             break;
         case c_left:
-            clickleft(valores.matrizl,&(valores.pontos));
+            clickleft(valores.matrizl,&(valores.pontos),valores.cb,valores.cf);
             sorteia(valores.matrizl);
             break;
         case c_right:
-            clickright(valores.matrizl,&(valores.pontos));
+            clickright(valores.matrizl,&(valores.pontos),valores.cb,valores.cf);
             sorteia(valores.matrizl);
             break;
         case c_back:
