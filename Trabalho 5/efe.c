@@ -25,6 +25,8 @@ typedef struct {
 #define fundoe tela_cria_cor(189.0/255.0,66.0/255.0,250.0/255.0);
 #define fundof tela_cria_cor(85.0/255.0,60.0/255.0,250.0/255.0);
 
+void game(double pontos, int cb, int cf, bool venceu);
+
 
 void desenhafundo(int cf){
     tela_retangulo(0,0,1280,720,5,cf,cf);
@@ -229,7 +231,37 @@ void sorteia(char matriz[5][5]){
     }
 }
 
-bool matriz_cheia(char matriz[5][5]){
+bool verifica_move(char matriz[5][5]){
+    for(int i=0;i<5;i++){
+        for(int j=0;j<3;j++){
+            if(matriz[i][j]==matriz[i][j+1] && matriz[i][j]==matriz[i][j+2]){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool espelha(char matriz[5][5]){
+    bool moves;
+    char matriz_aux[5][5];
+    for (int i=0;i<5;i++){
+        for(int j=0;j<5;j++){
+            matriz_aux[i][j]=matriz[i][j];
+        }
+    }
+    moves = verifica_move(matriz_aux);
+    if (moves == false){ 
+        return moves;
+    }
+    else{
+        invertelr(matriz_aux);
+        moves = verifica_move(matriz_aux);
+        return moves;
+    }
+}
+
+bool matriz_move(char matriz[5][5]){
     bool cheia = true;
     for (int i=0;i<5;i++){
         for(int j=0;j<5;j++){
@@ -238,39 +270,10 @@ bool matriz_cheia(char matriz[5][5]){
             }
         }
     }
+    if (cheia == true){
+        cheia=espelha(matriz);
+    }
     return cheia;
-}
-
-bool temF(char matriz[5][5]){
-    bool haveF = false;
-    for (int i=0;i<5;i++){
-        for(int j=0;j<5;j++){
-            if (matriz[i][j]=='F'){
-                haveF = true;
-            }
-        }
-    }
-    return haveF;
-}
-
-void iniciaval(val *valores){
-    valores->pontos = 0;
-    for(int i=0;i<5;i++){
-        for (int j=0;j<5;j++){
-            valores->matrizl[i][j]=' ';
-        }
-    }
-    for (int i=0;i<3;i++){
-        sorteia(valores->matrizl);
-    }
-    valores->cb = borda;
-    valores->cf = fundo;
-    valores->fa = fundoa;
-    valores->fb = fundob;
-    valores->fc = fundoc;
-    valores->fd = fundod;
-    valores->fe = fundoe;
-    valores->ff = fundof;
 }
 
 void placar(){}
@@ -336,7 +339,7 @@ void inicio(int cor_logo, int cor_texto){
 }
 
 void desenhafim(double pontos, int cb, int cf, bool vencedor){
-    char buf[8], ponto[16]={"Pontos: "},fechar[15]={"Fechar - Enter\0"};
+    char buf[8], ponto[16]={"Pontos: "},fechar[7]={"Fechar\0"};
     sprintf(buf,"%.1f", pontos);
     strcat(ponto,buf);
     desenhafundo(cf);
@@ -390,16 +393,37 @@ void jogo(val valores){
             clickright(valores.matrizl,&(valores.pontos),valores.cb,valores.cf);
             sorteia(valores.matrizl);
             break;
-        case c_back:
+        case c_esc:
+            tela_acaba(valores);
             return;
         }
         tela_atualiza();
-        bool cheia = matriz_cheia(valores.matrizl);
-        if (cheia == true){
+        bool acaba = matriz_move(valores.matrizl);
+        if (acaba == true){
             tela_acaba(valores);
             return;
         }
     }
+}
+
+void iniciaval(val *valores){
+    valores->pontos = 0;
+    for(int i=0;i<5;i++){
+        for (int j=0;j<5;j++){
+            valores->matrizl[i][j]=' ';
+        }
+    }
+    for (int i=0;i<3;i++){
+        sorteia(valores->matrizl);
+    }
+    valores->cb = borda;
+    valores->cf = fundo;
+    valores->fa = fundoa;
+    valores->fb = fundob;
+    valores->fc = fundoc;
+    valores->fd = fundod;
+    valores->fe = fundoe;
+    valores->ff = fundof;
 }
 
 int main()
