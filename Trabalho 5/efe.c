@@ -27,6 +27,13 @@ typedef struct {
 
 void game(double pontos, int cb, int cf, bool venceu,double mpontos[5],char maior_pontos[5][21]);
 
+void imppo(double pontos[5]){
+    for(int i=0;i<5;i++){
+        printf("%lf ",pontos[i]);
+    }
+    printf("\n");
+}
+
 void readtxt(double mpontos[5], char maior_pontos[5][21]){
   FILE *arq = fopen("./tabela.txt","r");
   if (arq == NULL){
@@ -359,14 +366,6 @@ void desenha_attplacar(int cb, int cf){
     tela_texto(640,200,55,cb,nrr);
 }
 
-void passa(char maior_pontos[5][21],int cb){
-    char nm[21];
-    for(int i=0;i<21;i++){
-        nm[i]=maior_pontos[4][i];
-    }
-    tela_texto(640,400,60,cb,nm);
-}
-
 void attplacar(char maior_pontos[5][21],int cf, int cb){
     maior_pontos[4][0]='\0';
     int tam=0;
@@ -383,12 +382,13 @@ void attplacar(char maior_pontos[5][21],int cf, int cb){
             case c_enter:
                 return;
             case c_none:
-                passa(maior_pontos,cb);
+                tela_texto(640,400,60,cb,maior_pontos[4]);
                 break;
             default:
-                if (tam<20){
-                maior_pontos[4][tam]=tecla;
-                tam++;
+                if (tam<19){
+                    maior_pontos[4][tam]=tecla;
+                    tam++;
+                    maior_pontos[4][tam]='\0';
                 }
                 break;
         }
@@ -424,45 +424,41 @@ void game(double pontos, int cb, int cf, bool venceu, double mpontos[5],char mai
                 mpontos[4]=pontos;
                 attplacar(maior_pontos,cf,cb);
             }
-                return;
+            return;
         }
         tela_atualiza();
     }
 }
 
-void tela_acaba(val valores){
-    game(valores.pontos,valores.cb,valores.cf,false,valores.mpontos,valores.maior_pontos);
-}
-
-void jogo(val valores){
+void jogo(val *valores){
     while (true){        
-        desenhatela(valores);
+        desenhatela(*valores);
         int tecla = tela_tecla();
         switch (tecla){
         case c_up:
-            clickup(valores.matrizl,&(valores.pontos),valores.cb,valores.cf,valores.mpontos,valores.maior_pontos);
-            sorteia(valores.matrizl);
+            clickup(valores->matrizl,&(valores->pontos),valores->cb,valores->cf,valores->mpontos,valores->maior_pontos);
+            sorteia(valores->matrizl);
             break;
         case c_down:
-            clickdown(valores.matrizl,&(valores.pontos),valores.cb,valores.cf,valores.mpontos,valores.maior_pontos);
-            sorteia(valores.matrizl);
+            clickdown(valores->matrizl,&(valores->pontos),valores->cb,valores->cf,valores->mpontos,valores->maior_pontos);
+            sorteia(valores->matrizl);
             break;
         case c_left:
-            clickleft(valores.matrizl,&(valores.pontos),valores.cb,valores.cf,valores.mpontos,valores.maior_pontos);
-            sorteia(valores.matrizl);
+            clickleft(valores->matrizl,&(valores->pontos),valores->cb,valores->cf,valores->mpontos,valores->maior_pontos);
+            sorteia(valores->matrizl);
             break;
         case c_right:
-            clickright(valores.matrizl,&(valores.pontos),valores.cb,valores.cf,valores.mpontos,valores.maior_pontos);
-            sorteia(valores.matrizl);
+            clickright(valores->matrizl,&(valores->pontos),valores->cb,valores->cf,valores->mpontos,valores->maior_pontos);
+            sorteia(valores->matrizl);
             break;
         case c_esc:
-            tela_acaba(valores);
+            game(valores->pontos,valores->cb,valores->cf,false,valores->mpontos,valores->maior_pontos);
             return;
         }
         tela_atualiza();
-        bool acaba = matriz_move(valores.matrizl);
+        bool acaba = matriz_move(valores->matrizl);
         if (acaba == true){
-            tela_acaba(valores);
+            game(valores->pontos,valores->cb,valores->cf,false,valores->mpontos,valores->maior_pontos);
             return;
         }
     }
@@ -505,7 +501,7 @@ void inicio(val valores){
                 break;
             case c_enter:
                 if(pos == 0){
-                    jogo(valores);
+                    jogo(&valores);
                 }
                 else{
                     placar(valores);
