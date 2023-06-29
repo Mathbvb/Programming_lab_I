@@ -47,27 +47,7 @@ int abs(int a)
   return a<0 ? -a : a;
 }
 
-void readtxt(float pontos[5], char nomes[5][20]){
-  FILE *arq = fopen("./tabela.txt","r");
-  if (arq == NULL){
-    for (int i=0;i<5;i++){
-      pontos[i]=0;
-    }
-    return;
-  }
-  for (int i=0; i<5;i++){
-    fscanf(arq,"%f %s",&pontos[i],nomes[i]);
-  }
-  fclose(arq);
-}
 
-void writetxt(float pontos[5], char nomes[5][20]){
-  FILE *arq = fopen("./tabela.txt","w");
-  for (int i=0; i<5;i++){
-    fprintf(arq,"%.2f %s\n",pontos[i],nomes[i]);
-  }
-  fclose(arq);
-}
 
 void quadrado(cor cores, int col){
   tela_cor_fundo(cores);
