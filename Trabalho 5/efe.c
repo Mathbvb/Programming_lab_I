@@ -313,7 +313,7 @@ bool espelha(char matriz[5][5]){
         return moves;
     }
     else{
-        invertelr(matriz_aux);
+        transcreve(matriz_aux);
         moves = verifica_move(matriz_aux);
         return moves;
     }
@@ -364,7 +364,7 @@ void placar(vplacar plac){
 void imp_tela(double pontos){
     char buf[8];
     sprintf(buf,"%.1f", pontos);
-    tela_texto(860,40,60,cb,buf);
+    tela_texto(840,40,60,cb,buf);
 }
 
 void desenhatela(val valores){
