@@ -24,10 +24,11 @@ typedef struct {
 #define fundod tela_cria_cor(153.0/255.0,153.0/255.0,255.0/255.0);
 #define fundoe tela_cria_cor(255.0/255.0,153.0/255.0,255.0/255.0);
 #define fundof tela_cria_cor(204.0/255.0,153.0/255.0,204.0/255.0);
+#define fundog tela_cria_cor(255.0/255.0, 100.0/255.0, 100.0/255.0);
 
-int fa, fb, fc, fd, fe, ff, cb, cf;
+int fa, fb, fc, fd, fe, ff, fg, cb, cf;
 
-void game(double pontos, bool venceu,double mpontos[5],char maior_pontos[5][21]);
+void game(double pontos, double mpontos[5],char maior_pontos[5][21], char matriz[5][5]);
 void sorteia(char matriz[5][5]);
 void iniciaval(val *valores, vplacar *plac);
 
@@ -113,6 +114,9 @@ int corfundoquad(val valores, int i, int j){
             break;
         case 'F':
             return ff;
+            break;
+        case 'G':
+            return fg;
             break;
     }
     return 0;
@@ -205,8 +209,10 @@ void jp(char matriz[5][5],double *pontos,int i,int j, char aux,double mpontos[5]
     case 'E':                
         matriz[i][j]='F';
         *pontos+=2430;
-        game(*pontos,true,mpontos,maior_pontos);
-        zera(&(*pontos),matriz,false);
+        break;
+    case 'F':
+        matriz[i][j]='G';
+        *pontos+=7290;
         break;
     }
 }
@@ -272,12 +278,12 @@ void clickdown(char matriz[5][5], double *pontos,double mpontos[5],char maior_po
 
 void sorteia(char matriz[5][5]){
     srand(time(0));
-    int sort = rand()%4, posl=rand()%5, posc=rand()%5;
+    int sort = rand()%8, posl=rand()%5, posc=rand()%5;
     while (matriz[posl][posc] != ' '){
         posl=rand()%5;
         posc=rand()%5;
     }
-    if (sort == 3){
+    if (sort == 7){
         matriz[posl][posc] = 'B';
     }
     else{
@@ -425,7 +431,20 @@ void desenhafim(double pontos, bool vencedor){
     tela_texto(640,400,60,cf,fechar);
 }
 
-void game(double pontos, bool venceu, double mpontos[5],char maior_pontos[5][21]){
+bool verificaF(char matriz[5][5]){
+    bool tem = false;
+    for(int i=0;i<5;i++){
+        for(int j=0;j<5;j++){
+            if(matriz[i][j]=='F'){
+                tem=true;
+            }
+        }
+    }
+    return tem;
+}
+
+void game(double pontos, double mpontos[5],char maior_pontos[5][21], char matriz[5][5]){
+    bool venceu = verificaF(matriz);
     while (true){
         desenhafim(pontos,venceu);
         int tecla = tela_tecla();
@@ -465,14 +484,14 @@ void jogo(val *valores, vplacar *plac){
             sorteia(valores->matrizl);
             break;
         case c_esc:
-            game(valores->pontos,false,plac->mpontos,plac->maior_pontos);
+            game(valores->pontos,plac->mpontos,plac->maior_pontos,valores->matrizl);
             zera(&(valores->pontos),valores->matrizl,&acaba);
             return;
         }
         tela_atualiza();
         acaba = matriz_move(valores->matrizl);
         if (acaba == true){
-            game(valores->pontos,false,plac->mpontos,plac->maior_pontos);
+            game(valores->pontos,plac->mpontos,plac->maior_pontos,valores->matrizl);
             zera(&(valores->pontos),valores->matrizl,&acaba);
             return;
         }
@@ -551,6 +570,7 @@ void iniciaval(val *valores, vplacar *plac){
     fd = fundod;
     fe = fundoe;
     ff = fundof;
+    fg = fundog;
     readtxt(plac->mpontos,plac->maior_pontos);
 }
 
