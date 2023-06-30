@@ -272,14 +272,10 @@ void clickdown(char matriz[5][5], double *pontos,double mpontos[5],char maior_po
 
 void sorteia(char matriz[5][5]){
     srand(time(0));
-    int sort = rand()%4, posl=rand()%5, posc=rand()%5,i=0;
+    int sort = rand()%4, posl=rand()%5, posc=rand()%5;
     while (matriz[posl][posc] != ' '){
         posl=rand()%5;
         posc=rand()%5;
-        if (i>=25){
-            break;
-        }
-        i++;
     }
     if (sort == 3){
         matriz[posl][posc] = 'B';
