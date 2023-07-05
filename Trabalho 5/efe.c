@@ -31,6 +31,7 @@ int fa, fb, fc, fd, fe, ff, fg, cb, cf;
 void game(double pontos, double mpontos[5],char maior_pontos[5][21], char matriz[5][5]);
 void sorteia(char matriz[5][5]);
 void iniciaval(val *valores, vplacar *plac);
+bool matrizcheia(char matriz[5][5]);
 
 void zera(double *pontos, char matriz[5][5], bool *acaba){
     *pontos=0;
@@ -173,13 +174,14 @@ void invertelr(char matriz[5][5]){
     }
 }
 
-void movelr(char matriz[5][5]){
+void movelr(char matriz[5][5],double *pontos){
     for (int i=0;i<5;i++){
         int aux=0;
         for (int j=0;j<5;j++){
             if (matriz[i][j]!=' '){
                 matriz[i][aux]=matriz[i][j];
                 if(j>aux){
+                    *pontos+=1;
                     matriz[i][j]=' ';
                 }
             aux++;
@@ -231,64 +233,60 @@ void juntalr(char matriz[5][5],double *pontos,double mpontos[5],char maior_ponto
     }
 }
 
-double addponto(double pontos){
-    pontos += 1;
-    return pontos;
-}
-
 void clickleft(char matriz[5][5], double *pontos, double mpontos[5],char maior_pontos[5][21]){
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
-    *pontos=addponto(*pontos);
 }
 
 void clickup(char matriz[5][5], double *pontos,double mpontos[5],char maior_pontos[5][21]){
     transcreve(matriz);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     transcreve(matriz);
-    *pontos=addponto(*pontos);
 }
 
 void clickright(char matriz[5][5],double *pontos,double mpontos[5],char maior_pontos[5][21]){
     invertelr(matriz);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     invertelr(matriz);
-    *pontos=addponto(*pontos);
 }
 
 void clickdown(char matriz[5][5], double *pontos,double mpontos[5],char maior_pontos[5][21]){
     transcreve(matriz);
     invertelr(matriz);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
-    movelr(matriz);
+    movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     invertelr(matriz);
     transcreve(matriz);
-    *pontos=addponto(*pontos);
 }
 
 void sorteia(char matriz[5][5]){
     srand(time(0));
-    int sort = rand()%8, posl=rand()%5, posc=rand()%5;
-    while (matriz[posl][posc] != ' '){
-        posl=rand()%5;
-        posc=rand()%5;
-    }
-    if (sort == 7){
-        matriz[posl][posc] = 'B';
-    }
-    else{
-        matriz[posl][posc] = 'A';
-    }
+    int sort = rand()%8, posl, posc;
+    bool cheia = matrizcheia(matriz);
+    
+    if(cheia == false){
+        do{
+            posl=rand()%5;
+            posc=rand()%5;
+        }while (matriz[posl][posc] != ' ');
+        if (sort == 7){
+            matriz[posl][posc] = 'B';
+        }
+        else{
+            matriz[posl][posc] = 'A';
+        }
+    }   
+    return;
 }
 
 bool verifica_move(char matriz[5][5]){
@@ -321,15 +319,21 @@ bool espelha(char matriz[5][5]){
     }
 }
 
-bool matriz_move(char matriz[5][5]){
+bool matrizcheia(char matriz[5][5]){
     bool cheia = true;
     for (int i=0;i<5;i++){
         for(int j=0;j<5;j++){
             if (matriz[i][j]==' '){
                 cheia = false;
+                break;
             }
         }
     }
+    return cheia;
+}
+
+bool matriz_move(char matriz[5][5]){
+    bool cheia = matrizcheia(matriz);
     if (cheia == true){
         cheia=espelha(matriz);
     }
@@ -342,9 +346,9 @@ void desenha_placar(vplacar plac){
     tela_texto(640,80,100,cb,nom);
     for(int i=0;i<5;i++){
         if(plac.mpontos[i]>0){
-            tela_texto(320,200+i*100,60,cb,plac.maior_pontos[i]);
+            tela_texto(480,200+i*100,60,cb,plac.maior_pontos[i]);
             sprintf(buf,"%.1f", plac.mpontos[i]);
-            tela_texto(960,200+i*100,60,cb,buf);
+            tela_texto(1100,200+i*100,60,cb,buf);
         }
     }
     if(plac.mpontos[0]==0){
@@ -353,6 +357,7 @@ void desenha_placar(vplacar plac){
 }
 
 void placar(vplacar plac){
+    ordena(plac.mpontos,plac.maior_pontos);
     while(true){
         int tecla = tela_tecla();
         desenha_placar(plac);
@@ -377,10 +382,11 @@ void desenhatela(val valores){
 }
 
 void desenha_attplacar(){
-    char nr[12]={"Parabéns!\0"},nrr[26]={"Você quebrou um recorde!\0"};
+    char nr[12]={"Parabéns!\0"},nrr[26]={"Você quebrou um recorde!\0"}, inst[19]={"Digite seu nome\0"};
     tela_retangulo(0,0,1280,720,5,cf,cf);
     tela_texto(640,100,100,cb,nr);
     tela_texto(640,200,55,cb,nrr);
+    tela_texto(640,600,50,cb,inst);
 }
 
 void attplacar(char maior_pontos[5][21]){
