@@ -234,31 +234,44 @@ void juntalr(char matriz[5][5],double *pontos,double mpontos[5],char maior_ponto
 }
 
 void clickleft(char matriz[5][5], double *pontos, double mpontos[5],char maior_pontos[5][21]){
+    double aux = *pontos;
     movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    if(aux!=*pontos){
+        sorteia(matriz);
+    }
 }
 
 void clickup(char matriz[5][5], double *pontos,double mpontos[5],char maior_pontos[5][21]){
+    double aux = *pontos;
     transcreve(matriz);
     movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     transcreve(matriz);
+    if(aux!=*pontos){
+        sorteia(matriz);
+    }
 }
 
 void clickright(char matriz[5][5],double *pontos,double mpontos[5],char maior_pontos[5][21]){
+    double aux = *pontos;
     invertelr(matriz);
     movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     movelr(matriz,&(*pontos));
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     invertelr(matriz);
+    if(aux!=*pontos){
+        sorteia(matriz);
+    }
 }
 
 void clickdown(char matriz[5][5], double *pontos,double mpontos[5],char maior_pontos[5][21]){
+    double aux = *pontos;
     transcreve(matriz);
     invertelr(matriz);
     movelr(matriz,&(*pontos));
@@ -267,6 +280,9 @@ void clickdown(char matriz[5][5], double *pontos,double mpontos[5],char maior_po
     juntalr(matriz,&(*pontos),mpontos,maior_pontos);
     invertelr(matriz);
     transcreve(matriz);
+    if(aux!=*pontos){
+        sorteia(matriz);
+    }
 }
 
 void sorteia(char matriz[5][5]){
@@ -475,19 +491,15 @@ void jogo(val *valores, vplacar *plac){
         switch (tecla){
         case c_up:
             clickup(valores->matrizl,&(valores->pontos),plac->mpontos,plac->maior_pontos);
-            sorteia(valores->matrizl);
             break;
         case c_down:
             clickdown(valores->matrizl,&(valores->pontos),plac->mpontos,plac->maior_pontos);
-            sorteia(valores->matrizl);
             break;
         case c_left:
             clickleft(valores->matrizl,&(valores->pontos),plac->mpontos,plac->maior_pontos);
-            sorteia(valores->matrizl);
             break;
         case c_right:
             clickright(valores->matrizl,&(valores->pontos),plac->mpontos,plac->maior_pontos);
-            sorteia(valores->matrizl);
             break;
         case c_esc:
             game(valores->pontos,plac->mpontos,plac->maior_pontos,valores->matrizl);
