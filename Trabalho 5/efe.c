@@ -6,6 +6,8 @@
 #include "tela.h"
 #include <string.h>
 
+//gcc -Wall -o efe efe.c tela.c -lallegro_font -lallegro_color -lallegro_ttf -lallegro_primitives -lallegro
+
 typedef struct {
     char matrizl[5][5];
     double pontos;
