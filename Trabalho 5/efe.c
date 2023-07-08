@@ -557,7 +557,7 @@ void inicio(){
                 }
                 break;
             case c_down:
-                if(valores.pos>=0){
+                if(valores.pos==0 || valores.pos==1){
                     valores.pos++;
                 }
                 break;
