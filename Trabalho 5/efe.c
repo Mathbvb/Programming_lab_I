@@ -516,21 +516,31 @@ void jogo(val *valores, vplacar *plac){
 }
 
 void desenha_inicio(int pos){
-    char logo[4]={"EFE\0"}, jogar[7]={"Jogar\0"}, inst[35]={"Combine 3 letras iguais de A a F\0"}, lplac[8]={"Placar\0"};
+    char logo[4]={"EFE\0"}, jogar[7]={"Jogar\0"}, inst[35]={"Combine 3 letras iguais de A a F\0"}, lplac[8]={"Placar\0"},sair[6]={"Sair\0"};
     desenhafundo();
-    tela_texto(640,120,120,cb,logo);
-    tela_texto(640,650,40,cb,inst);
+    tela_texto(640,80,120,cb,logo);
+    tela_texto(640,670,40,cb,inst);
     if (pos==0){
-        desenhabotao(384,290,512,144);
-        tela_texto(640,360,70,cf,jogar);
-        desenhabotao(420,460,440,110);
-        tela_texto(640,510,50,cf,lplac);
-    }
-    else{
-        desenhabotao(420,290,440,110);
-        tela_texto(640,340,50,cf,jogar);
-        desenhabotao(384,460,512,144);
-        tela_texto(640,530,70,cf,lplac);
+        desenhabotao(384,180,512,144);
+        tela_texto(640,250,70,cf,jogar);
+        desenhabotao(420,354,440,110);
+        tela_texto(640,404,50,cf,lplac);
+        desenhabotao(420,494,440,110);
+        tela_texto(640,544,50,cf,sair);
+    } else if (pos==1){
+        desenhabotao(420,180,440,110);
+        tela_texto(640,230,50,cf,jogar);
+        desenhabotao(384,320,512,144);
+        tela_texto(640,390,70,cf,lplac);
+        desenhabotao(420,494,440,110);
+        tela_texto(640,544,50,cf,sair);
+    } else{
+        desenhabotao(420,180,440,110);
+        tela_texto(640,230,50,cf,jogar);
+        desenhabotao(420,320,440,110);
+        tela_texto(640,370,50,cf,lplac);
+        desenhabotao(384,460,512,140);
+        tela_texto(640,530,70,cf,sair);
     }
 }
 
@@ -547,7 +557,7 @@ void inicio(){
                 }
                 break;
             case c_down:
-                if(valores.pos==0){
+                if(valores.pos>=0){
                     valores.pos++;
                 }
                 break;
@@ -556,13 +566,14 @@ void inicio(){
                     iniciajogo(&(valores.pontos),valores.matrizl,&(valores.acaba));
                     jogo(&valores,&plac);
                 }
-                else{
+                else if(valores.pos==1){
                     placar(plac);
                 }
+                else{
+                    writetxt(plac.mpontos,plac.maior_pontos);
+                    return; 
+                }
                 break;
-            case c_esc:
-                writetxt(plac.mpontos,plac.maior_pontos);
-                return; 
         }
         tela_atualiza();
     }
@@ -582,8 +593,7 @@ void iniciaval(val *valores, vplacar *plac){
     readtxt(plac->mpontos,plac->maior_pontos);
 }
 
-int main()
-{
+int main(){
     tela_inicio(1280,720,"EFE");
 
     inicio();
