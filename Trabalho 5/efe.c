@@ -9,6 +9,8 @@
 typedef struct {
     char matrizl[5][5];
     double pontos;
+    int pos;
+    bool acaba;
 } val;
 
 typedef struct {
@@ -33,7 +35,7 @@ void sorteia(char matriz[5][5]);
 void iniciaval(val *valores, vplacar *plac);
 bool matrizcheia(char matriz[5][5]);
 
-void zera(double *pontos, char matriz[5][5], bool *acaba){
+void iniciajogo(double *pontos, char matriz[5][5], bool *acaba){
     *pontos=0;
     for(int i=0;i<5;i++){
         for(int j=0;j<5;j++){
@@ -190,7 +192,7 @@ void movelr(char matriz[5][5],double *pontos){
     }
 }
 
-void jp(char matriz[5][5],double *pontos,int i,int j, char aux,double mpontos[5],char maior_pontos[5][21]){
+void jp(char matriz[5][5],double *pontos,int i,int j, char aux){
     switch (aux){
     case 'A':
         matriz[i][j]='B';
@@ -219,13 +221,13 @@ void jp(char matriz[5][5],double *pontos,int i,int j, char aux,double mpontos[5]
     }
 }
 
-void juntalr(char matriz[5][5],double *pontos,double mpontos[5],char maior_pontos[5][21]){
+void juntalr(char matriz[5][5],double *pontos){
     char aux;
     for(int i=0;i<5;i++){
         for(int j=0;j<3;j++){
             if(matriz[i][j]==matriz[i][j+1] && matriz[i][j]==matriz[i][j+2]){
                 aux=matriz[i][j];
-                jp(matriz,&(*pontos),i,j,aux,mpontos,maior_pontos);
+                jp(matriz,&(*pontos),i,j,aux);
                 matriz[i][j+1]=' ';
                 matriz[i][j+2]=' ';
             }
@@ -236,9 +238,9 @@ void juntalr(char matriz[5][5],double *pontos,double mpontos[5],char maior_ponto
 void clickleft(char matriz[5][5], double *pontos, double mpontos[5],char maior_pontos[5][21]){
     double aux = *pontos;
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     if(aux!=*pontos){
         sorteia(matriz);
     }
@@ -248,9 +250,9 @@ void clickup(char matriz[5][5], double *pontos,double mpontos[5],char maior_pont
     double aux = *pontos;
     transcreve(matriz);
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     transcreve(matriz);
     if(aux!=*pontos){
         sorteia(matriz);
@@ -261,9 +263,9 @@ void clickright(char matriz[5][5],double *pontos,double mpontos[5],char maior_po
     double aux = *pontos;
     invertelr(matriz);
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     invertelr(matriz);
     if(aux!=*pontos){
         sorteia(matriz);
@@ -275,9 +277,9 @@ void clickdown(char matriz[5][5], double *pontos,double mpontos[5],char maior_po
     transcreve(matriz);
     invertelr(matriz);
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     movelr(matriz,&(*pontos));
-    juntalr(matriz,&(*pontos),mpontos,maior_pontos);
+    juntalr(matriz,&(*pontos));
     invertelr(matriz);
     transcreve(matriz);
     if(aux!=*pontos){
@@ -484,7 +486,6 @@ void game(double pontos, double mpontos[5],char maior_pontos[5][21], char matriz
 }
 
 void jogo(val *valores, vplacar *plac){
-    bool acaba=false; 
     while (true){        
         desenhatela(*valores);
         int tecla = tela_tecla();
@@ -503,14 +504,12 @@ void jogo(val *valores, vplacar *plac){
             break;
         case c_esc:
             game(valores->pontos,plac->mpontos,plac->maior_pontos,valores->matrizl);
-            zera(&(valores->pontos),valores->matrizl,&acaba);
             return;
         }
         tela_atualiza();
-        acaba = matriz_move(valores->matrizl);
-        if (acaba == true){
+        valores->acaba = matriz_move(valores->matrizl);
+        if (valores->acaba == true){
             game(valores->pontos,plac->mpontos,plac->maior_pontos,valores->matrizl);
-            zera(&(valores->pontos),valores->matrizl,&acaba);
             return;
         }
     }
@@ -536,26 +535,25 @@ void desenha_inicio(int pos){
 }
 
 void inicio(){
-    val valores;
-    vplacar plac;
+    val valores; vplacar plac;
     iniciaval(&valores,&plac);
-    int pos = 0;
     while(true){
-        desenha_inicio(pos);
+        desenha_inicio(valores.pos);
         int tecla = tela_tecla();
         switch (tecla){
             case c_up:
-                if(pos>0){
-                    pos--;
+                if(valores.pos>0){
+                    valores.pos--;
                 }
                 break;
             case c_down:
-                if(pos==0){
-                    pos++;
+                if(valores.pos==0){
+                    valores.pos++;
                 }
                 break;
             case c_enter:
-                if(pos == 0){
+                if(valores.pos == 0){
+                    iniciajogo(&(valores.pontos),valores.matrizl,&(valores.acaba));
                     jogo(&valores,&plac);
                 }
                 else{
@@ -571,15 +569,7 @@ void inicio(){
 }
 
 void iniciaval(val *valores, vplacar *plac){
-    valores->pontos = 0;
-    for(int i=0;i<5;i++){
-        for (int j=0;j<5;j++){
-            valores->matrizl[i][j]=' ';
-        }
-    }
-    for (int i=0;i<3;i++){
-        sorteia(valores->matrizl);
-    }
+    valores->pos=0;
     cb = borda;
     cf = fundo;
     fa = fundoa;
