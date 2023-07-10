@@ -4,16 +4,6 @@
 #include <time.h>
 #include <string.h>
 
-// Programa exemplo do uso das funções de tela.[ch]
-// Além deste arquivo, necessita de tela.h e tela.c
-//
-// Para compilar:
-//   gcc -Wall -o cassa cassa.c tela.c
-//
-// tente sobreviver à cerquinha assassina durante 10s
-
-// funções auxiliares
-
 typedef struct{
   float ponto1[3];
   float ponto;
@@ -37,17 +27,29 @@ void poslincol(int lin, int col){
   tela_posiciona(pos);
 }
 
-int max(int a, int b)
-{
-  return a>b ? a : b;
+void readtxt(float pontos[5], char nomes[5][20]){
+  FILE *arq = fopen("./tabela.txt","r");
+  if (arq == NULL){
+    for (int i=0;i<5;i++){
+      pontos[i]=0;
+      nomes[i][0]='A';
+      nomes[i][1]='\0';
+    }
+    return;
+  }
+  for (int i=0; i<5;i++){
+    fscanf(arq,"%f %s",&pontos[i],nomes[i]);
+  }
+  fclose(arq);
 }
 
-int abs(int a)
-{
-  return a<0 ? -a : a;
+void writetxt(float pontos[5], char nomes[5][20]){
+  FILE *arq = fopen("./tabela.txt","w");
+  for (int i=0; i<5;i++){
+    fprintf(arq,"%.2f %s\n",pontos[i],nomes[i]);
+  }
+  fclose(arq);
 }
-
-
 
 void quadrado(cor cores, int col){
   tela_cor_fundo(cores);
@@ -93,7 +95,9 @@ int jogada(int pr,int v[3], int i){
       v[i]++;
     }
     break;
-  }
+  default:
+    break;
+  }  
   return (v[i]*5);
 }
 
@@ -105,22 +109,19 @@ float calcpontos(int corj, int cor){
     dischu*=-1;
   }
   if(cor>128){
-    madis=0;
+    madis=cor;
   } else {
-    madis=255;
+    madis=255-cor;
   }
-  pontos = (madis/100)*dischu;
+  pontos = (dischu/madis)*100;
   return pontos;
 }
 
 float pontmed(float ponto1[3], double tempo){
   float total=0, bonus=1;
-  if (tempo<20){
-    for (int j=tempo;j<20;j++){
-      bonus+=0.05;
-    }
-  }
-  total = (100-(ponto1[0]+ponto1[1]+ponto1[2])/3)*bonus;
+  bonus=bonus* 0.05 * (20-tempo); 
+  total = (100-(ponto1[0]+ponto1[1]+ponto1[2])/3);
+  total += total * bonus;
   return total;
 }
 
@@ -147,7 +148,7 @@ void ordena(float ponto, float pontos[5],char nomes[5][20]){
 }
 
 void mplacar(char nomes[5][20], float pontos[5]){
-  system("clear");
+  tela_limpa();
   printf("Melhores pontuações:\n");
   for (int i=0;i<5;i++){
     printf("%d. ",i+1);
@@ -181,15 +182,14 @@ void desenhafim(cor user,cor random, float ponto){
   tela_mostra_cursor(true);
   while (tela_le_char() != c_enter);
   tela_destroi();
-  system("clear");
+  tela_limpa();
 }
 
 int final(float *ponto, float pontos[5], char nomes[5][20], int continuar){
   ordena(*ponto,pontos,nomes);
   mplacar(nomes,pontos);
-  getchar();
-  getchar();
-  system("clear");
+  while(tela_le_char()!=c_enter);
+  tela_limpa();
   printf("Deseja continuar jogando? \n1 - Sim   |   2 - Não\n");
   scanf("%d", &continuar);
   writetxt(pontos,nomes);
@@ -198,24 +198,27 @@ int final(float *ponto, float pontos[5], char nomes[5][20], int continuar){
 
 void inicia(float pontos[5], char nomes[5][20]){
   srand(time(0));
-  tela_cria();    // sempre tem que ser a primeira função de tela a ser chamada
+  tela_cria();  
   tela_limpa();
   tela_mostra_cursor(false);
   readtxt(pontos,nomes);
 }
 
-void choosebar(int v[3], int *cor, int *r, int *g, int *b, int jr, int jg, int jb){
-  switch (*cor){
+void choosebar(placar *pontuacao){
+  switch (pontuacao->cor){
     case 1:
-      *r=jogada(jr,v,0);
+      pontuacao->user.vermelho=jogada(10,pontuacao->v,0);
       break;
     case 2:
-      *g=jogada(jg,v,1);
+      pontuacao->user.verde=jogada(12,pontuacao->v,1);
       break;
     case 3: 
-      *b=jogada(jb,v,2);
+      pontuacao->user.azul=jogada(14,pontuacao->v,2);
+      break;
+    default:
       break;
   }
+  return;
 }
 
 void atribuir(placar *pontuacao){
@@ -233,34 +236,34 @@ void atribuir(placar *pontuacao){
   pontuacao->tempo=0;
 }
 
-void finalcalc(float ponto1[3], cor user, cor random, double tempo,float *ponto){
-  ponto1[0]=calcpontos(user.vermelho, random.vermelho);
-  ponto1[1]=calcpontos(user.verde, random.verde);
-  ponto1[2]=calcpontos(user.azul, random.azul);
-  *ponto=pontmed(ponto1,tempo);
+void finalcalc(placar *pontuacao){
+  pontuacao->ponto1[0]=calcpontos(pontuacao->user.vermelho, pontuacao->random.vermelho);
+  pontuacao->ponto1[1]=calcpontos(pontuacao->user.verde, pontuacao->random.verde);
+  pontuacao->ponto1[2]=calcpontos(pontuacao->user.azul, pontuacao->random.azul);
+  pontuacao->ponto=pontmed(pontuacao->ponto1,pontuacao->tempo);
 }
 
-void jogando(placar pontuacao, cor *user, double tempo, double inicio, cor random){
+void jogando(placar *pontuacao){
   do {
-      tempo = tela_relogio() - inicio;
-      desenhatela(tempo,*user,random, inicio);
+      pontuacao->tempo = tela_relogio() - pontuacao->inicio;
+      desenhatela(pontuacao->tempo,pontuacao->user,pontuacao->random, pontuacao->inicio);
       int lugar=tela_le_char();
-      if(lugar == c_up){
-        if (pontuacao.cor>1){
-          pontuacao.cor--;
+      switch (lugar)
+      {
+      case c_up:
+        if (pontuacao->cor>1){
+          pontuacao->cor--;
         }
-      }
-      else if(lugar == c_down){
-        if (pontuacao.cor<3){
-          pontuacao.cor++;
+        break;
+      case c_down:
+        if (pontuacao->cor<3){
+          pontuacao->cor++;
         }
-      }
-      else if (lugar == c_enter){
+      default:
         break;
       }
-      else {choosebar(pontuacao.v,&(pontuacao.cor),&(user->vermelho),&(user->verde),&(user->azul),10,12,14);
-        }
-  }while (tempo <= 20);
+      choosebar(&(*pontuacao));
+  }while (pontuacao->tempo <= 20);
 }
 
 int main(){
@@ -269,10 +272,11 @@ int main(){
   while (continuar==1){
     inicia(pontuacao.pontos,pontuacao.nomes);    
     atribuir(&pontuacao);
-    jogando(pontuacao, &(pontuacao.user), pontuacao.tempo, pontuacao.inicio, pontuacao.random);
-    finalcalc(pontuacao.ponto1,pontuacao.user,pontuacao.random,pontuacao.tempo,&(pontuacao.ponto));
+    jogando(&pontuacao);
+    finalcalc(&pontuacao);
     desenhafim(pontuacao.user,pontuacao.random,pontuacao.ponto);  
     continuar=final(&(pontuacao.ponto),pontuacao.pontos, pontuacao.nomes, continuar);
   }
   tela_limpa();
+  system("clear");
 }

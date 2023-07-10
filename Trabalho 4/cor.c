@@ -30,16 +30,6 @@ typedef struct{
   double tempo;
 } placar;
 
-int max(int a, int b)
-{
-  return a>b ? a : b;
-}
-
-int abs(int a)
-{
-  return a<0 ? -a : a;
-}
-
 void readtxt(float pontos[5], char nomes[5][20]){
   FILE *arq = fopen("./tabela.txt","r");
   if (arq == NULL){
