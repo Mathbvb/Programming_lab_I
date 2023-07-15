@@ -99,8 +99,7 @@ void desenhabotao(float x, float y, float com, float alt){
     tela_retangulo(x,y,x+com,y+alt,5,cb,cb);
 }
 
-int corfundoquad(val valores, int i, int j){
-    char l = valores.matrizl[i][j];
+int corfundoquad(char l){
     switch (l){
         case 'A':
             return fa;
@@ -132,7 +131,7 @@ void desenhaquadrado(val valores){
     float x=360,y=80;
     for(int j=0;j<5;j++){
         for (int i=0;i<5;i++){
-            cf = corfundoquad(valores,j,i);
+            cf = corfundoquad(valores.matrizl[j][i]);
             tela_retangulo(x+115*i,y+115*j,x+115*i+115,y+115*j+115,3,cb,cf);
         }
     }
