@@ -4,6 +4,8 @@
 #include <time.h>
 #include <string.h>
 
+//   gcc -Wall -o cor cor.c tela.c
+
 typedef struct{
   float ponto1[3];
   float ponto;
